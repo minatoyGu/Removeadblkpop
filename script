@@ -2,7 +2,7 @@
 // @name         YouTube Element Remover
 // @namespace    http://tampermonkey.net/
 // @version      1.0
-// @description  Remove specific elements on YouTube pages, show a larger reminder, and auto-play the video
+// @description  Remove specific elements on YouTube pages and show a reminder
 // @author       Your Name
 // @match        https://www.youtube.com/*
 // @grant        none
@@ -12,6 +12,7 @@
     'use strict';
 
     let reminderTimeout;
+    let hasPlayed = false;
 
     // Function to remove the enforcement message and paper dialog
     function removeElements() {
@@ -29,11 +30,14 @@
             showReminder("Removed YouTube paper dialog");
         }
 
-        // Play the video if needed
-        playVideo();
+        // Play the video if it hasn't been played yet
+        if (!hasPlayed) {
+            playVideo();
+            hasPlayed = true;
+        }
     }
 
-    // Function to show a larger reminder
+    // Function to show a reminder
     function showReminder(message) {
         // Clear previous reminder timeout
         clearTimeout(reminderTimeout);
