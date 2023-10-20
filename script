@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         YouTube Element Remover with Reminder
+// @name         YouTube Element Remover
 // @namespace    http://tampermonkey.net/
 // @version      1.0
-// @description  Remove specific elements on YouTube pages and show a reminder
+// @description  Remove specific elements on YouTube pages, show a larger reminder, and auto-play the video
 // @author       Your Name
 // @match        https://www.youtube.com/*
 // @grant        none
@@ -11,6 +11,8 @@
 (function() {
     'use strict';
 
+    let reminderTimeout;
+
     // Function to remove the enforcement message and paper dialog
     function removeElements() {
         // Remove the enforcement message
@@ -18,6 +20,7 @@
         if (enforcementMessage) {
             enforcementMessage.remove();
             showReminder("Removed YouTube enforcement message");
+            playVideo();
         }
 
         // Remove the paper dialog
@@ -25,11 +28,16 @@
         if (paperDialog) {
             paperDialog.remove();
             showReminder("Removed YouTube paper dialog");
+            playVideo();
         }
     }
 
-    // Function to show a reminder
+    // Function to show a larger reminder
     function showReminder(message) {
+        // Clear previous reminder timeout
+        clearTimeout(reminderTimeout);
+
+        // Create the reminder
         const reminder = document.createElement("div");
         reminder.innerText = message;
         reminder.style.position = "fixed";
@@ -37,21 +45,31 @@
         reminder.style.right = "10px";
         reminder.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
         reminder.style.color = "white";
-        reminder.style.padding = "5px 10px";
-        reminder.style.borderRadius = "5px";
+        reminder.style.padding = "20px 30px";
+        reminder.style.borderRadius = "20px";
         reminder.style.zIndex = "9999";
+
+        // Add the reminder to the body
         document.body.appendChild(reminder);
 
-        // Remove the reminder after a few seconds
-        setTimeout(function() {
+        // Set a timeout to remove the reminder
+        reminderTimeout = setTimeout(function() {
             reminder.remove();
-        }, 3000); // 3 seconds
+        }, 5000); // 5 seconds
+    }
+
+    // Function to play the video
+    function playVideo() {
+        const video = document.querySelector('video');
+        if (video && video.paused) {
+            video.play();
+        }
     }
 
     // Wait for the document to be fully loaded before removing elements
     document.addEventListener('DOMContentLoaded', removeElements);
 
-    // For pages that load content dynamically (e.g., AJAX), use mutation observer
+    // For pages that load content dynamically (e.g., AJAX), use a mutation observer
     const observer = new MutationObserver(function(mutations) {
         mutations.forEach(function(mutation) {
             if (mutation.addedNodes.length) {
